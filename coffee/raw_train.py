@@ -6,7 +6,7 @@ Later, I will use tensorflow in a seperate file.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import sigmoid, relu
+from helpers import sigmoid, relu, normalize
 
 '''
 Generally speaking we are sending data X (time and temperature) into a neuron.
@@ -219,21 +219,34 @@ if __name__ == "__main__":
     print("Updated biases:\n", b1, "\n", b2)
 
     # showPlot(steps_arr, loss_arr)
-    print("\nInference: \n")
+    print("\nInference: \n", "Enter 'q' to exit")
     max_temp = 300
     min_temp = 160
     max_time = 21
     min_time = 7
 
-    temp = 280
-    time = 8.7
+    while True:
 
-    temp_norm = (temp - min_temp)/(max_temp - min_temp)
-    time_norm = (time - min_time) / (max_time - min_time)
+        temp = input("Enter a temperature: ")
+        if temp == 'q': break
+        time = input("Enter a time: ")
+        if time == 'q': break
 
-    print("time = ", time, " mins")
-    print("temp = ", temp, " degrees")
-    X_new = np.array([[time_norm, temp_norm]]) # MUST NORMALIZE!!!
+        try:
+            temp = float(temp)
+            time = float(time)
+            # Normalize
+            temp_norm = normalize(temp, max_temp, min_temp)
+            time_norm = normalize(time, max_time, min_time)
+        except ValueError:
+            print("Temperature or Time is not a valid numeric type")
+            continue
 
-    res = predict(X_new, W1, b1, W2, b2, W3, b3)
-    print(res)
+        
+
+        print("time = ", time, " mins")
+        print("temp = ", temp, " degrees")
+        X_new = np.array([[time_norm, temp_norm]]) # MUST NORMALIZE!!!
+
+        res = predict(X_new, W1, b1, W2, b2, W3, b3)
+        print(res)

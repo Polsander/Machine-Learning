@@ -1,7 +1,7 @@
+from tensorflow.keras import layers
+from helpers import normalize
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras import layers
-from tensorflow.keras.callbacks import EarlyStopping
 import random
 import os
 
@@ -63,7 +63,7 @@ model.compile(
 )
 
 # Set up training parameters
-early_stop = EarlyStopping(monitor="val_loss", patience=100, min_delta=0.001, restore_best_weights=False)
+early_stop = keras.callbacks.EarlyStopping(monitor="val_loss", patience=100, min_delta=0.001, restore_best_weights=False)
 
 history = model.fit(
     X,
@@ -81,22 +81,36 @@ history.history # Train the model and Print out the training history
 
 print("Enter 'q' to exist this while loop")
 
-temp_input = input("Enter a temperature: ")
-time_input = input("Enter a time: ")
-
-while temp_input != 'q' and time_input != 'q':
-
-
-    if not isinstance(float(temp_input), (int, float)) or not isinstance(float(time_input), (int, float)):
-        raise ValueError("Temperature or Time is not a valid numeric type")
-        break
-
-    X_predict = np.array([[time_input], [temp_input]])
-    prediction = model.predict(X)
-
-    print(prediction)
+while True:
 
     temp_input = input("Enter a temperature: ")
+    if temp_input == 'q': break
     time_input = input("Enter a time: ")
+    if time_input == 'q': break
+
+    
+    try:
+        temp_input = float(temp_input)
+        time_input = float(time_input)
+        # Normalize
+        max_temp = 300
+        min_temp = 160
+        max_time = 21
+        min_time = 7
+        temp_input = normalize(temp_input, max_temp, min_temp)
+        time_input = normalize(time_input, max_time, min_time)
+    except ValueError:
+        print("Temperature or Time is not a valid numeric type")
+        continue
+
+    X_predict = np.array([[time_input, temp_input]])
+    prediction = model.predict(X_predict)
+
+    if prediction[0][0] >= 0.5:
+        print(f"Good Coffee!\nProbability: {prediction[0][0]}")
+    else:
+        print(f"Bad Coffee :(\nProbability: {prediction[0][0]}")
+
+    
 
 print("Training End")
