@@ -6,7 +6,7 @@ Later, I will use tensorflow in a seperate file.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import sigmoid, relu, normalize
+from functions.helpers import sigmoid, relu, normalize
 
 '''
 Generally speaking we are sending data X (time and temperature) into a neuron.
@@ -33,7 +33,7 @@ def calculate_a(X, W, b, type):
     if type != "sigmoid" and type != "relu":
         raise ValueError("Must provide valid type as sigmoid or relu")
 
-    Z = np.dot(X, W) + b
+    Z = np.matmul(X, W) + b
     A = None
 
     if type == "sigmoid":
@@ -69,7 +69,7 @@ dL/db = (a-y) (for a single example )
 def gradient_last_layer(A, Y, X):
     m = A.shape[0]
     dLdZ = A - Y # change in Z
-    dLdW = (1/m) * np.dot(X.T, dLdZ)
+    dLdW = (1/m) * np.matmul(X.T, dLdZ)
     dLdb = (1/m) * np.sum(dLdZ, axis=0)  # Keeps shape (1,)
 
     return (dLdW, dLdb, dLdZ)
@@ -107,20 +107,20 @@ def gradient_hidden_layer(dLdZ_next, W_next, A_curr, A_prev, activation): # dLdZ
 
     # A_curr = sigmoid(Z_curr)
     if activation == "sigmoid":
-        dA_dZ_curr = A_curr * (1 - A_curr)
+        dAdZ_curr = A_curr * (1 - A_curr)
     elif activation == "relu":
-        dA_dZ_curr = (A_curr > 0).astype(float)
+        dAdZ_curr = (A_curr > 0).astype(float)
     else:
         raise ValueError("Unsupported activation function")
     
-    dL_dA_curr = np.dot(dLdZ_next, W_next.T)
-    dL_dZ_curr = dL_dA_curr * dA_dZ_curr
+    dLdA_curr = np.matmul(dLdZ_next, W_next.T)
+    dLdZ_curr = dLdA_curr * dAdZ_curr
 
     m = A_prev.shape[0]
-    dLdW = np.dot(A_prev.T, dL_dZ_curr) / m
-    dLdb = np.sum(dL_dZ_curr, axis=0) / m # Axis is important here because we want the bias per neuron
+    dLdW = np.matmul(A_prev.T, dLdZ_curr) / m
+    dLdb = np.sum(dLdZ_curr, axis=0) / m # Axis is important here because we want the bias per neuron
 
-    return (dLdW, dLdb, dL_dZ_curr)
+    return (dLdW, dLdb, dLdZ_curr)
 
 
 '''
@@ -160,6 +160,44 @@ def showPlot(steps, loss):
     plt.show()
 
 
+def showDecisionBoundary(X, Y, min_temp, max_temp, min_time, max_time, W1, W2, W3, b1, b2, b3):
+    time_vals = np.linspace(min_time, max_time, 200)
+    temp_vals = np.linspace(min_temp, max_temp, 200)
+    T_time, T_temp = np.meshgrid(time_vals, temp_vals)
+
+    # Flatten and normalize
+    grid_points = np.c_[T_time.ravel(), T_temp.ravel()]
+    grid_points_norm = np.zeros_like(grid_points)
+    grid_points_norm[:, 0] = normalize(grid_points[:, 0], max_time, min_time)
+    grid_points_norm[:, 1] = normalize(grid_points[:, 1], max_temp, min_temp)
+
+    # Forward pass for all points in the grid
+    A1_grid = calculate_a(grid_points_norm, W1, b1, type="relu")
+    A2_grid = calculate_a(A1_grid, W2, b2, type="relu")
+    A3_grid = calculate_a(A2_grid, W3, b3, type="sigmoid")
+
+    # Reshape predictions to match meshgrid
+    Z = A3_grid.reshape(T_time.shape)
+
+    # Plot the decision boundary
+    plt.contourf(T_time, T_temp, Z, levels=[0, 0.5, 1], alpha=0.3, colors=['red', 'green'])
+    plt.colorbar(label='Predicted probability (Good coffee)')
+
+    # Plot training data
+    good = Y.flatten() == 1
+    bad = ~good
+    plt.scatter(X[good, 0] * (max_time - min_time) + min_time, 
+                X[good, 1] * (max_temp - min_temp) + min_temp, 
+                c='green', label='Good coffee (train)')
+    plt.scatter(X[bad, 0] * (max_time - min_time) + min_time, 
+                X[bad, 1] * (max_temp - min_temp) + min_temp, 
+                c='red', label='Bad coffee (train)')
+
+    plt.xlabel('Time (minutes)')
+    plt.ylabel('Temperature (°C)')
+    plt.legend()
+    plt.title("Decision Boundary")
+    plt.show()
 
 
 
@@ -218,12 +256,13 @@ if __name__ == "__main__":
     print("Updated weights:\n", W1, "\n", W2, "\n")
     print("Updated biases:\n", b1, "\n", b2)
 
-    # showPlot(steps_arr, loss_arr)
-    print("\nInference: \n", "Enter 'q' to exit")
+    showPlot(steps_arr, loss_arr)
     max_temp = 300
     min_temp = 160
     max_time = 21
     min_time = 7
+    showDecisionBoundary(X, Y, min_temp, max_temp, min_time, max_time, W1, W2, W3, b1, b2, b3)
+    print("\nInference: \n", "Enter 'q' to exit")
 
     while True:
 

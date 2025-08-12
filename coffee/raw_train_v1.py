@@ -6,7 +6,7 @@ Later, I will use tensorflow in a seperate file.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import sigmoid, relu
+from coffee.functions.helpers import sigmoid, relu
 
 '''
 Generally speaking we are sending data X (time and temperature) into a neuron.
@@ -33,7 +33,7 @@ def calculate_a(X, W, b, type):
     if type != "sigmoid" and type != "relu":
         raise ValueError("Must provide valid type as sigmoid or relu")
 
-    Z = np.dot(X, W) + b
+    Z = np.matmul(X, W) + b
     A = None
 
     if type == "sigmoid":
@@ -69,7 +69,7 @@ dL/db = (a-y) (for a single example )
 def gradient_last_layer(A, Y, X):
     m = A.shape[0]
     dLdZ = A - Y # change in Z
-    dLdW = (1/m) * np.dot(X.T, dLdZ)
+    dLdW = (1/m) * np.matmul(X.T, dLdZ)
     dLdb = (1/m) * np.sum(dLdZ, axis=0)  # Keeps shape (1,)
 
     return (dLdW, dLdb, dLdZ)
@@ -113,11 +113,11 @@ def gradient_hidden_layer(dLdZ_next, W_next, A_curr, A_prev, activation): # dLdZ
     else:
         raise ValueError("Unsupported activation function")
     
-    dL_dA_curr = np.dot(dLdZ_next, W_next.T)
+    dL_dA_curr = np.matmul(dLdZ_next, W_next.T)
     dL_dZ_curr = dL_dA_curr * dA_dZ_curr
 
     m = A_prev.shape[0]
-    dLdW = np.dot(A_prev.T, dL_dZ_curr) / m
+    dLdW = np.matmul(A_prev.T, dL_dZ_curr) / m
     dLdb = np.sum(dL_dZ_curr, axis=0) / m # Axis is important here because we want the bias per neuron
 
     return (dLdW, dLdb, dL_dZ_curr)

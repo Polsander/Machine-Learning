@@ -1,5 +1,6 @@
 from tensorflow.keras import layers
-from helpers import normalize
+from functions.helpers import normalize
+from functions.plots import tensor_training_curve
 import tensorflow as tf
 import numpy as np
 import random
@@ -70,13 +71,18 @@ history = model.fit(
     Y,
     batch_size=32,
     epochs=650,
-    validation_split=0.1, # 10% of the training data will be held back and used for validation - which will show how well our model is learning to unseen data
+    validation_split=0.1, # 10% of the training data will be held back and used for validation - which will show how well our model performs on unseen data
     callbacks=[early_stop] # 
 )
 
 # Because no validation, we are not running any evaluations
 history.history # Train the model and Print out the training history
 
+loss = history.history['loss']
+val_loss = history.history.get('val_loss')
+epochs = range(1, len(loss) + 1)
+
+tensor_training_curve(loss, val_loss, epochs)
 # After training we can enter this while loop where we can call our predictions :)
 
 print("Enter 'q' to exist this while loop")

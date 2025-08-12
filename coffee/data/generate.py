@@ -47,7 +47,9 @@ def plot_data(X, Y):
     plt.show()
 
 if __name__ == "__main__":
-    X, Y = generate_coffee_dataset(500, True)
+    # X, Y = generate_coffee_dataset(500, True)
+    X = np.load("/home/olivererdmann/Documents/code/ml_learn/coffee/data/data_X.npy")
+    Y = np.load("/home/olivererdmann/Documents/code/ml_learn/coffee/data/data_Y.npy")
     plot_data(X, Y)
 
     #Export

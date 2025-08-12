@@ -13,3 +13,4 @@ def normalize(value, max, min):
     normalized = (value - min)/(max - min)
 
     return normalized
+    
