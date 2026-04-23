@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ChE500_Project"
+version = "0.1.0"
+description = "Supervised and Unsupervised Learning Regression/Logistic Analysis for ChE500 Project"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Oliver Erdmann", email = "oerdmann@uwaterloo.ca" }
+]
+dependencies = [
+    "scikit-learn",
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "opencv-python",
+    "torch==2.11.0+cpu",        # Specific version with CPU suffix (no GPU support)
+    "torchvision==0.26.0+cpu",
+    "xgboost"
+]
+
+[tool.setuptools]
+packages = ["src"]

@@ -1,0 +1,15 @@
+
+data/blue/frames*
+data/blue/*.mp4
+
+data/yellow/frames*
+data/yellow/*.mp4
+
+data/green/frames*
+data/green/*.mp4
+
+test
+che-500-venv
+
+*.egg*
+__pycache__
