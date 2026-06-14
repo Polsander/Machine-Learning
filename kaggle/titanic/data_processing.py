@@ -67,7 +67,7 @@ def process_data(pd_data: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, np.ndar
     data_copy: pd.DataFrame = pd_data
     print("Any NaN values before processing?", data_copy.isna().values.any())
 
-    data_copy = data_copy.drop(columns=["Ticket", "Cabin"])
+    data_copy = data_copy.drop(columns=["Ticket", "Cabin", "Name"])
     data_copy["Age"] = process_age(data_copy["Age"])
     data_copy["Sex"] = male_female(data_copy["Sex"])
     data_copy["S"], data_copy["Q"], data_copy["C"] = one_hot_encode_port(data_copy["Embarked"])
