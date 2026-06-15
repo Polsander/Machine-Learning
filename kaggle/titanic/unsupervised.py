@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, SparsePCA
 
 def PCA_vis(X, Y):
     
@@ -11,7 +11,7 @@ def PCA_vis(X, Y):
     T2 = pca_model2.fit_transform(X)
     T3 = pca_model3.fit_transform(X)
 
-    fig = plt.figure(figsize=(14, 5))
+    fig = plt.figure(figsize=(20, 15))
     cmap="PiYG"
 
     # 2D plot (PC1 vs PC2)
@@ -39,9 +39,8 @@ def PLS_visualize(X,Y):
     # PLS 3D
     X_tilde = X.copy()
     Y = np.vstack(Y)
-    breakpoint()
 
-    k = 9
+    k = 3
     W_pls = np.zeros((np.shape(X_tilde)[1], k))
     for i in range(k):
         U, S, Vt = np.linalg.svd(X_tilde.T @ Y, full_matrices=False)
@@ -66,6 +65,36 @@ def PLS_visualize(X,Y):
     plt.show()
 
 
+def Sparse_PCA(X, ndim=None):
+
+    model = SparsePCA(n_components=ndim)
+    model.fit(X)
+    w = model.components_
+
+    print(w)
+
+def SVD_redundancy(X):
+    U,S,V = np.linalg.svd(X, full_matrices=False)
+    print(S)
+
+def get_PLS_space(X,Y):
+    X_tilde = X.copy()
+    Y = np.vstack(Y)
+
+    k = 9
+    W_pls = np.zeros((np.shape(X_tilde)[1], k))
+    for i in range(k):
+        U, S, Vt = np.linalg.svd(X_tilde.T @ Y, full_matrices=False)
+        ui = U[:, 0]
+        W_pls[:, i] = ui
+        Xu = np.vstack(X_tilde @ ui)
+        I = np.eye(len(X_tilde))
+        X_tilde = (I - ((Xu @ Xu.T)/(Xu.T @ Xu))) @ X_tilde
+
+    T = X_scaled @ W_pls
+    return T
+
+
 if __name__ == "__main__":
 
     Xraw = np.load("matrices/train/X.npy", allow_pickle=True)
@@ -83,8 +112,12 @@ if __name__ == "__main__":
 
     X_scaled = ct.fit_transform(Xraw)
 
-    PCA_vis(X_scaled, Yraw)
+    # PCA_vis(X_scaled, Yraw)
     PLS_visualize(X_scaled, Yraw) # partial least squares seems to be the most promising here
+    # Sparse_PCA(X_scaled, 3)
+    # SVD_redundancy(X_scaled)
 
+    # Conclusion is to use PLS space and use supervised learning for that.
 
+    X_new = get_PLS_space()
     
