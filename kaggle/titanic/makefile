@@ -1,6 +1,7 @@
 
 LOAD_DATA_PATH = ./data_processing.py
 UNSUPERVISED_PATH = ./unsupervised.py
+SUPERVISED_PATH = ./supervised.py
 
 .PHONY: load_data
 
@@ -19,3 +20,8 @@ load_data:
 run_unsupervised:
 	@echo "Running unsupervised learning script"
 	@bash -c "python3 $(UNSUPERVISED_PATH)"
+
+## run_supervised: Run supervised training methods
+run_supervised:
+	@echo "Running supervised learning script"
+	@bash -c "python3 $(SUPERVISED_PATH)"

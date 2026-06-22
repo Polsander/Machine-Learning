@@ -77,11 +77,10 @@ def SVD_redundancy(X):
     U,S,V = np.linalg.svd(X, full_matrices=False)
     print(S)
 
-def get_PLS_space(X,Y):
+def get_PLS_space(X,Y, k):
     X_tilde = X.copy()
     Y = np.vstack(Y)
 
-    k = 9
     W_pls = np.zeros((np.shape(X_tilde)[1], k))
     for i in range(k):
         U, S, Vt = np.linalg.svd(X_tilde.T @ Y, full_matrices=False)
@@ -91,7 +90,7 @@ def get_PLS_space(X,Y):
         I = np.eye(len(X_tilde))
         X_tilde = (I - ((Xu @ Xu.T)/(Xu.T @ Xu))) @ X_tilde
 
-    T = X_scaled @ W_pls
+    T = X @ W_pls
     return T
 
 
@@ -119,5 +118,5 @@ if __name__ == "__main__":
 
     # Conclusion is to use PLS space and use supervised learning for that.
 
-    X_new = get_PLS_space()
+    X_new = get_PLS_space(X_scaled, Yraw, k=3)
     
