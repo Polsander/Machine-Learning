@@ -2,6 +2,7 @@
 LOAD_DATA_PATH = ./data_processing.py
 UNSUPERVISED_PATH = ./unsupervised.py
 SUPERVISED_PATH = ./supervised.py
+TRAIN_PATH = ./train_model.py
 
 .PHONY: load_data
 
@@ -25,3 +26,8 @@ run_unsupervised:
 run_supervised:
 	@echo "Running supervised learning script"
 	@bash -c "python3 $(SUPERVISED_PATH)"
+
+## run_train: Run the training model script and save the csv submission locally for contest submission
+run_train:
+	@echo "Running training script"
+	@bash -c "python3 $(TRAIN_PATH)"

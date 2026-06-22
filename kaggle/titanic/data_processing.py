@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def process_age(column):
+def process_age_fare(column):
 
     new_col = []
     age_values = []
@@ -62,24 +62,29 @@ def male_female(column):
             new_col.append(-1)
     return new_col
 
-def process_data(pd_data: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def process_data(pd_data: pd.DataFrame, type=None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """The full process data function which supports being imported/exported"""
     data_copy: pd.DataFrame = pd_data
     print("Any NaN values before processing?", data_copy.isna().values.any())
 
     data_copy = data_copy.drop(columns=["Ticket", "Cabin", "Name"])
-    data_copy["Age"] = process_age(data_copy["Age"])
+    data_copy["Age"] = process_age_fare(data_copy["Age"])
     data_copy["Sex"] = male_female(data_copy["Sex"])
     data_copy["S"], data_copy["Q"], data_copy["C"] = one_hot_encode_port(data_copy["Embarked"])
+    data_copy["Fare"] = process_age_fare(data_copy["Fare"])
     data_copy = data_copy.drop(columns=["Embarked"])
     data_copy["SibSp"] = data_copy["SibSp"].fillna(0)
     data_copy["Parch"] = data_copy["Parch"].fillna(0)
 
     print("Any NaN values after processing?", data_copy.isna().values.any())
-
-    Y = data_copy["Survived"].to_numpy()
+    
+    Y = None if type is not None else data_copy["Survived"].to_numpy()
     ids = data_copy["PassengerId"].to_numpy()
-    X = data_copy.drop(columns=["Survived", "PassengerId"]).to_numpy()
+    X = None
+    if type is None:
+        X = data_copy.drop(columns=["Survived", "PassengerId"]).to_numpy()
+    else:
+        X = data_copy.drop(columns=["PassengerId"]).to_numpy()
 
     return X, Y, ids
 
@@ -92,4 +97,10 @@ if __name__ == "__main__":
     np.save("matrices/train/X.npy", X)
     np.save("matrices/train/Y.npy", Y)
     np.save("matrices/train/ids.npy", ids)
-    print("Data processing complete and matrices saved in folders")
+    print("Training data processing complete and matrices saved in folders")
+
+    test_file_data = pd.read_csv("data/test.csv")
+    X, Y, ids = process_data(test_file_data, type='test')
+
+    np.save("matrices/test/X.npy", X)
+    np.save("matrices/test/ids.npy", ids)
