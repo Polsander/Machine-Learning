@@ -227,7 +227,7 @@ def infer_transformer(encoder_id_inputs, max_seq, modules):
     return output
         
 
-def train_trainsformer(encoder_id_inputs, target_id_inputs, d_model, num_heads,
+def train_transformer(encoder_id_inputs, target_id_inputs, d_model, num_heads,
                         vocab_encoder, vocab_decoder, num_epochs=10, lr=1e-3):
     """
     Args:
@@ -350,7 +350,7 @@ if __name__ == "__main__":
 
     # --- Train ---
     print("=== Training ===")
-    trained_modules = train_trainsformer(
+    trained_modules = train_transformer(
         x_input, target_input, d_model, num_heads,
         vocab_encoder, vocab_decoder, num_epochs=500, lr=1e-3
     )
